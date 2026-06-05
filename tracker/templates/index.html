@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>华友钴业 · 关键变量追踪</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F4F5F7;
+      --surface: #FFFFFF;
+      --surface-secondary: #F9FAFB;
+      --border: #E5E7EB;
+      --border-light: #F0F1F3;
+      --text: #111827;
+      --text-secondary: #4B5563;
+      --text-dim: #9CA3AF;
+      --text-faint: #D1D5DB;
+      --red: #DC2626;
+      --red-light: #FEF2F2;
+      --red-border: #FECACA;
+      --red-text: #991B1B;
+      --yellow: #D97706;
+      --yellow-light: #FFFBEB;
+      --yellow-border: #FDE68A;
+      --yellow-text: #92400E;
+      --green: #059669;
+      --green-light: #ECFDF5;
+      --green-border: #A7F3D0;
+      --green-text: #065F46;
+      --blue: #2563EB;
+      --blue-light: #EFF6FF;
+      --blue-border: #BFDBFE;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.06), 0 2px 4px -2px rgba(0,0,0,0.04);
+      --radius: 12px;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", system-ui, sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; -webkit-font-smoothing: antialiased;
+      font-feature-settings: 'tnum';
+    }
+
+    .icon { width: 16px; height: 16px; display: inline-block; vertical-align: middle; flex-shrink: 0; }
+    .icon-lg { width: 20px; height: 20px; }
+
+    /* ===== HEADER ===== */
+    .header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,0.82); backdrop-filter: blur(16px) saturate(1.8);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-left { display: flex; align-items: center; gap: 20px; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-text { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+    .logo-code {
+      font-size: 11px; font-weight: 600; color: var(--text-dim);
+      background: var(--surface-secondary); border: 1px solid var(--border);
+      padding: 2px 8px; border-radius: 5px;
+    }
+
+    .alert-pills { display: flex; gap: 6px; }
+    .alert-pill {
+      font-size: 12px; font-weight: 600; padding: 4px 12px;
+      border-radius: 20px; display: flex; align-items: center; gap: 6px;
+      transition: opacity 0.2s;
+    }
+    .alert-pill:hover { opacity: 0.85; }
+    .alert-pill.red {
+      background: var(--red-light); color: var(--red-text); border: 1px solid var(--red-border);
+    }
+    .alert-pill.yellow {
+      background: var(--yellow-light); color: var(--yellow-text); border: 1px solid var(--yellow-border);
+    }
+    .pulse-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    .pulse-dot.red { background: var(--red); }
+    .pulse-dot.yellow { background: var(--yellow); }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.8)} }
+
+    .header-right { display: flex; align-items: center; gap: 14px; }
+    .meta-text { font-size: 12px; color: var(--text-dim); }
+    .refresh-btn {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text-secondary); padding: 7px 14px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+      font-family: inherit; box-shadow: var(--shadow-sm);
+    }
+    .refresh-btn:hover { background: var(--surface-secondary); color: var(--text); border-color: #D1D5DB; }
+    .refresh-btn:active { transform: scale(0.97); }
+    .refresh-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .refresh-btn.loading svg { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== LAYOUT ===== */
+    .main { max-width: 1520px; margin: 0 auto; padding: 24px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+      gap: 16px; align-items: start;
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-md); }
+    .card.glow-red { border-color: var(--red-border); box-shadow: var(--shadow-md), 0 0 0 1px var(--red-border); }
+    .card.glow-yellow { border-color: var(--yellow-border); box-shadow: var(--shadow-md), 0 0 0 1px var(--yellow-border); }
+
+    /* -- Card header -- */
+    .card-head {
+      padding: 16px 20px 12px;
+      display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .card-head-left { display: flex; align-items: center; gap: 12px; }
+    .card-icon-wrap {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .card-head-info { display: flex; flex-direction: column; gap: 2px; }
+    .card-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+    .card-sub { font-size: 11px; color: var(--text-dim); font-weight: 500; }
+
+    .card-badges { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+    .badge {
+      font-size: 10px; font-weight: 700; padding: 3px 8px;
+      border-radius: 6px; display: flex; align-items: center; gap: 4px;
+      letter-spacing: 0.01em;
+    }
+    .badge-p { background: var(--blue-light); color: var(--blue); border: 1px solid var(--blue-border); }
+    .badge-alert { background: var(--red-light); color: var(--red-text); border: 1px solid var(--red-border); }
+    .badge-watch { background: var(--yellow-light); color: var(--yellow-text); border: 1px solid var(--yellow-border); }
+    .badge-stable { background: var(--green-light); color: var(--green-text); border: 1px solid var(--green-border); }
+    .bdot { width: 5px; height: 5px; border-radius: 50%; }
+    .badge-alert .bdot { background: var(--red); animation: pulse 2.5s ease-in-out infinite; }
+    .badge-watch .bdot { background: var(--yellow); }
+    .badge-stable .bdot { background: var(--green); }
+
+    /* -- Brief -- */
+    .card-brief {
+      margin: 0 16px 14px;
+      padding: 12px 16px;
+      font-size: 13px; line-height: 1.7;
+      border-radius: 8px;
+      color: var(--text-secondary);
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-light);
+    }
+    .card-brief.has-signal.alert {
+      background: var(--red-light);
+      border-color: var(--red-border);
+      color: var(--red-text);
+      font-weight: 500;
+    }
+    .card-brief.has-signal.watch {
+      background: var(--yellow-light);
+      border-color: var(--yellow-border);
+      color: var(--yellow-text);
+      font-weight: 500;
+    }
+
+    /* -- Stats -- */
+    .card-stats {
+      margin: 0 20px 14px;
+      padding: 10px 16px;
+      background: var(--surface-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      display: none; align-items: center; gap: 14px;
+      font-size: 12px; font-weight: 500;
+    }
+    .stat { display: flex; align-items: center; gap: 5px; color: var(--text-secondary); }
+    .stat-bar { width: 8px; height: 8px; border-radius: 2px; }
+    .stat-bar.s-red { background: var(--red); }
+    .stat-bar.s-yellow { background: var(--yellow); }
+    .stat-bar.s-grey { background: var(--text-faint); }
+    .stat b { color: var(--text); font-weight: 700; margin-right: 1px; }
+    .stats-sep { width: 1px; height: 14px; background: var(--border); }
+
+    /* -- Divider -- */
+    .card-div { height: 1px; background: var(--border-light); margin: 0; }
+
+    /* -- News -- */
+    .news-scroll {
+      max-height: 320px; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: var(--text-faint) transparent;
+    }
+    .news-scroll::-webkit-scrollbar { width: 4px; }
+    .news-scroll::-webkit-scrollbar-track { background: transparent; }
+    .news-scroll::-webkit-scrollbar-thumb { background: var(--text-faint); border-radius: 4px; }
+
+    .news-group {
+      padding: 10px 20px 4px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+      position: sticky; top: 0; background: var(--surface); z-index: 1;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .ng-bar { width: 14px; height: 2px; border-radius: 1px; }
+    .news-group.g-crit { color: var(--red); }
+    .news-group.g-crit .ng-bar { background: var(--red); }
+    .news-group.g-imp { color: var(--yellow); }
+    .news-group.g-imp .ng-bar { background: var(--yellow); }
+    .news-group.g-other { color: var(--text-dim); }
+    .news-group.g-other .ng-bar { background: var(--text-faint); }
+
+    .nitem {
+      display: flex; text-decoration: none; color: inherit;
+      transition: background 0.12s; cursor: pointer;
+    }
+    .nitem:hover { background: var(--surface-secondary); }
+    .nitem:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+
+    .nbar { width: 3px; flex-shrink: 0; }
+    .nbar.critical { background: var(--red); }
+    .nbar.important { background: var(--yellow); }
+    .nbar.normal { background: var(--border); }
+    .nbar.low { background: transparent; }
+
+    .nbody { flex: 1; min-width: 0; padding: 10px 20px 10px 14px; }
+    .ntitle {
+      font-size: 13px; line-height: 1.6; font-weight: 400;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+      color: var(--text-secondary);
+    }
+    .nitem.critical .ntitle { color: var(--red-text); font-weight: 600; }
+    .nitem.important .ntitle { color: var(--yellow-text); font-weight: 500; }
+    .nitem.normal .ntitle { color: var(--text-secondary); }
+    .nitem.low .ntitle { color: var(--text-dim); }
+
+    .nmeta {
+      margin-top: 3px; font-size: 11px; color: var(--text-dim);
+      display: flex; gap: 6px; align-items: center;
+    }
+    .dot-sep { width: 2px; height: 2px; border-radius: 50%; background: var(--text-dim); }
+
+    /* -- Watch -- */
+    .watch-bar { border-top: 1px solid var(--border-light); }
+    .watch-btn {
+      width: 100%; padding: 10px 20px;
+      background: none; border: none; cursor: pointer;
+      font-size: 11px; font-weight: 500; color: var(--text-dim);
+      display: flex; align-items: center; gap: 6px;
+      font-family: inherit; transition: color 0.15s;
+    }
+    .watch-btn:hover { color: var(--text-secondary); }
+    .watch-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    .watch-btn svg { transition: transform 0.2s ease; }
+    .watch-btn.open svg { transform: rotate(90deg); }
+    .watch-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .watch-body.open { max-height: 200px; }
+    .watch-inner { padding: 0 20px 12px; }
+    .wp {
+      font-size: 12px; color: var(--text-dim); padding: 3px 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .wp-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; opacity: 0.8; }
+
+    /* -- Loading -- */
+    .load-wrap { padding: 36px 20px; text-align: center; }
+    .load-spin {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border); border-top-color: var(--blue);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      margin: 0 auto 10px;
+    }
+    .load-text { font-size: 12px; color: var(--text-dim); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+      .header { padding: 0 16px; }
+      .main { padding: 16px 12px 32px; }
+      .alert-pills { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<svg style="display:none">
+  <symbol id="i-factory" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></symbol>
+  <symbol id="i-battery" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/><line x1="6" x2="6" y1="11" y2="13"/><line x1="10" x2="10" y1="11" y2="13"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+  <symbol id="i-pickaxe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.531 12.469 6.619 20.38a1 1 0 1 1-3-3l7.912-7.912"/><path d="M15.686 4.314A12.5 12.5 0 0 0 5.461 2.958l-.108.031c-1.042.3-1.533 1.479-.981 2.4.552.922 1.177 1.833 1.874 2.61l.1.118c.479.55 1.149.93 1.873 1.064 1.253.231 2.626-.29 3.395-1.245l1.272-1.58a6 6 0 0 1 2.8-2.04Z"/><path d="m19.686 8.314-7.372 7.372"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+</svg>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">
+      <span class="logo-text">华友钴业</span>
+      <span class="logo-code">603799.SH</span>
+    </div>
+    <div class="alert-pills" id="alertPills"></div>
+  </div>
+  <div class="header-right">
+    <span class="meta-text" id="timer"></span>
+    <button class="refresh-btn" id="refreshBtn" onclick="refreshAll()">
+      <svg class="icon"><use href="#i-refresh"/></svg>
+      刷新
+    </button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const CATEGORIES = {{ categories | tojson }};
+const ICONS = {
+  indonesia_nickel: '#i-factory',
+  lithium: '#i-battery',
+  cashflow: '#i-wallet',
+  europe_cathode: '#i-globe',
+  cobalt_copper: '#i-pickaxe',
+};
+const ICON_COLORS = {
+  indonesia_nickel: { bg: '#FEF2F2', stroke: '#DC2626' },
+  lithium:          { bg: '#F5F3FF', stroke: '#7C3AED' },
+  cashflow:         { bg: '#FFFBEB', stroke: '#D97706' },
+  europe_cathode:   { bg: '#EFF6FF', stroke: '#2563EB' },
+  cobalt_copper:    { bg: '#ECFDF5', stroke: '#059669' },
+};
+const REFRESH_MS = 5 * 60 * 1000;
+let lastRefresh = null;
+let catResults = {};
+
+function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function buildCard(c) {
+  const ic = ICON_COLORS[c.id];
+  return `
+  <div class="card" id="card-${c.id}">
+    <div class="card-head">
+      <div class="card-head-left">
+        <div class="card-icon-wrap" style="background:${ic.bg}">
+          <svg class="icon icon-lg" style="color:${ic.stroke}"><use href="${ICONS[c.id]}"/></svg>
+        </div>
+        <div class="card-head-info">
+          <span class="card-name">${c.name}</span>
+          <span class="card-sub" id="sub-${c.id}">加载中…</span>
+        </div>
+      </div>
+      <div class="card-badges">
+        <span class="badge badge-p">P${c.priority}</span>
+        <span class="badge badge-stable" id="badge-${c.id}"><span class="bdot"></span>检测中</span>
+      </div>
+    </div>
+    <div class="card-brief" id="brief-${c.id}">
+      <span style="color:var(--text-dim)">正在检索并分析…</span>
+    </div>
+    <div class="card-stats" id="stats-${c.id}"></div>
+    <div class="card-div"></div>
+    <div class="news-scroll" id="news-${c.id}">
+      <div class="load-wrap"><div class="load-spin"></div><div class="load-text">检索中…</div></div>
+    </div>
+    <div class="watch-bar">
+      <button class="watch-btn" onclick="toggleWP('${c.id}')">
+        <svg class="icon" style="width:12px;height:12px"><use href="#i-chevron"/></svg>
+        跟进要点 (${c.watch_points.length})
+      </button>
+      <div class="watch-body" id="wb-${c.id}">
+        <div class="watch-inner">
+          ${c.watch_points.map(w=>`<div class="wp"><span class="wp-dot" style="background:${c.color}"></span>${w}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderResult(id, data) {
+  catResults[id] = data;
+  const card = document.getElementById(`card-${id}`);
+  card.classList.remove('glow-red','glow-yellow');
+  if (data.status==='alert') card.classList.add('glow-red');
+  else if (data.status==='watch') card.classList.add('glow-yellow');
+
+  const sub = document.getElementById(`sub-${id}`);
+  const total = data.news?.length||0;
+  sub.textContent = `${total} 条信息 · 截至 ${data.news?.[0]?.date?.slice(0,10)||'--'}`;
+
+  const badge = document.getElementById(`badge-${id}`);
+  const bc = data.status==='alert'?'badge-alert':data.status==='watch'?'badge-watch':'badge-stable';
+  badge.className = `badge ${bc}`;
+  badge.innerHTML = `<span class="bdot"></span>${esc(data.status_label)}`;
+
+  const br = document.getElementById(`brief-${id}`);
+  const sigClass = data.critical_count ? ` has-signal ${data.status}` : '';
+  br.className = `card-brief${sigClass}`;
+  br.innerHTML = esc(data.brief);
+
+  const st = document.getElementById(`stats-${id}`);
+  const crit=data.critical_count||0, imp=data.important_count||0, rest=total-crit-imp;
+  st.style.display = 'flex';
+  st.innerHTML = `
+    <div class="stat"><span class="stat-bar s-red"></span><b>${crit}</b> 关键</div>
+    <div class="stats-sep"></div>
+    <div class="stat"><span class="stat-bar s-yellow"></span><b>${imp}</b> 重要</div>
+    <div class="stats-sep"></div>
+    <div class="stat"><span class="stat-bar s-grey"></span><b>${rest}</b> 其他</div>
+  `;
+
+  const nl = document.getElementById(`news-${id}`);
+  if (!data.news?.length) { nl.innerHTML='<div class="load-wrap"><div class="load-text">暂无</div></div>'; return; }
+  const groups = {critical:[], important:[], normal:[], low:[]};
+  data.news.forEach(n => (groups[n.level]||groups.low).push(n));
+  let h = '';
+  if (groups.critical.length) {
+    h+=`<div class="news-group g-crit"><span class="ng-bar"></span>关键信号 (${groups.critical.length})</div>`;
+    h+=groups.critical.map(nhtml).join('');
+  }
+  if (groups.important.length) {
+    h+=`<div class="news-group g-imp"><span class="ng-bar"></span>重要动态 (${groups.important.length})</div>`;
+    h+=groups.important.map(nhtml).join('');
+  }
+  const other=[...groups.normal,...groups.low];
+  if (other.length) {
+    h+=`<div class="news-group g-other"><span class="ng-bar"></span>其他 (${other.length})</div>`;
+    h+=other.map(nhtml).join('');
+  }
+  nl.innerHTML = h;
+  updatePills();
+}
+
+function nhtml(n) {
+  return `<a class="nitem ${n.level}" href="${n.url}" target="_blank" rel="noopener">
+    <div class="nbar ${n.level}"></div>
+    <div class="nbody">
+      <div class="ntitle">${esc(n.title)}</div>
+      <div class="nmeta">
+        ${n.source?`<span>${esc(n.source)}</span>`:''}
+        ${n.source&&n.date?'<span class="dot-sep"></span>':''}
+        ${n.date?`<span>${n.date}</span>`:''}
+      </div>
+    </div>
+  </a>`;
+}
+
+function updatePills() {
+  const pills = [];
+  for (const c of CATEGORIES) {
+    const r = catResults[c.id];
+    if (!r) continue;
+    if (r.status==='alert')
+      pills.push(`<span class="alert-pill red"><span class="pulse-dot red"></span>${c.name} · ${r.critical_count}条关键</span>`);
+    else if (r.status==='watch')
+      pills.push(`<span class="alert-pill yellow"><span class="pulse-dot yellow"></span>${c.name}</span>`);
+  }
+  document.getElementById('alertPills').innerHTML = pills.join('');
+}
+
+function toggleWP(id) {
+  document.querySelector(`#card-${id} .watch-btn`).classList.toggle('open');
+  document.getElementById(`wb-${id}`).classList.toggle('open');
+}
+
+async function fetchCat(c) {
+  try {
+    const r = await fetch(`/api/news/${c.id}`);
+    if (!r.ok) throw new Error(`${r.status}`);
+    renderResult(c.id, await r.json());
+  } catch(e) {
+    document.getElementById(`news-${c.id}`).innerHTML =
+      `<div class="load-wrap"><div class="load-text" style="color:var(--red)">加载失败</div></div>`;
+  }
+}
+
+async function refreshAll() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+  CATEGORIES.forEach(c => {
+    document.getElementById(`brief-${c.id}`).innerHTML='<span style="color:var(--text-dim)">分析中…</span>';
+    document.getElementById(`news-${c.id}`).innerHTML='<div class="load-wrap"><div class="load-spin"></div><div class="load-text">检索中…</div></div>';
+    document.getElementById(`stats-${c.id}`).style.display='none';
+    document.getElementById(`sub-${c.id}`).textContent='检索中…';
+  });
+  await Promise.all(CATEGORIES.map(fetchCat));
+  lastRefresh = Date.now();
+  btn.classList.remove('loading'); btn.disabled = false;
+}
+
+function tick() {
+  if (!lastRefresh) return;
+  const ago = Math.floor((Date.now()-lastRefresh)/1000);
+  const m=Math.floor(ago/60), s=ago%60;
+  const left = Math.max(0,Math.floor((REFRESH_MS-(Date.now()-lastRefresh))/1000));
+  const lm=Math.floor(left/60), ls=left%60;
+  document.getElementById('timer').textContent =
+    `${m}:${String(s).padStart(2,'0')} 前 · ${lm}:${String(ls).padStart(2,'0')} 后刷新`;
+}
+
+document.getElementById('grid').innerHTML = CATEGORIES.map(buildCard).join('');
+refreshAll();
+setInterval(tick,1000);
+setInterval(refreshAll,REFRESH_MS);
+</script>
+</body>
+</html>

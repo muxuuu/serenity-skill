@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .env
 .venv/
+tracker-env/
+*.app/
+tracker/.server.pid
+.claude/
