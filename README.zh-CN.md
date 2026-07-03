@@ -46,6 +46,26 @@ mkdir -p "$SKILL_DIR"
 cp -R SKILL.md LICENSE references assets scripts examples agents "$SKILL_DIR"/
 ```
 
+### Autohand Code
+
+用户级安装：
+
+```bash
+SKILL_DIR="$HOME/.autohand/skills/serenity-skill"
+mkdir -p "$SKILL_DIR"
+cp -R SKILL.md LICENSE references assets scripts examples agents "$SKILL_DIR"/
+```
+
+项目级安装：
+
+```bash
+SKILL_DIR=".autohand/skills/serenity-skill"
+mkdir -p "$SKILL_DIR"
+cp -R SKILL.md LICENSE references assets scripts examples agents "$SKILL_DIR"/
+```
+
+如果 Serenity.skill 后续发布到 Autohand Skills 索引，也可以用 `autohand --skill-install serenity-skill` 安装到用户级目录，或加 `--project` 安装到当前项目。
+
 ### Claude Code
 
 用户级安装：
