@@ -46,6 +46,26 @@ mkdir -p "$SKILL_DIR"
 cp -R SKILL.md LICENSE references assets scripts examples agents "$SKILL_DIR"/
 ```
 
+### Autohand Code
+
+User-level install:
+
+```bash
+SKILL_DIR="$HOME/.autohand/skills/serenity-skill"
+mkdir -p "$SKILL_DIR"
+cp -R SKILL.md LICENSE references assets scripts examples agents "$SKILL_DIR"/
+```
+
+Project-level install:
+
+```bash
+SKILL_DIR=".autohand/skills/serenity-skill"
+mkdir -p "$SKILL_DIR"
+cp -R SKILL.md LICENSE references assets scripts examples agents "$SKILL_DIR"/
+```
+
+If Serenity.skill is later published to an Autohand Skills index, users can install the cataloged skill with `autohand --skill-install serenity-skill`, or add `--project` to install it into the current project.
+
 ### Claude Code
 
 User-level install:
