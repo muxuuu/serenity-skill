@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0 — Unreleased
+## 1.1.0 — 2026-09-14
 
 - Focused the default workflow on A-share technology and advanced-manufacturing research, while preserving explicit cross-market requests.
 - Replaced source-count targets and fixed sector rankings with claim-specific evidence, commercial-stage distinctions and explained research priorities.
