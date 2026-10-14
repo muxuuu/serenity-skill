@@ -7,18 +7,31 @@ import sys
 from pathlib import Path
 
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+DELIMITER_RE = re.compile(r"^---[ \t]*$")
+BLOCK_SCALAR = {">", "|", ">-", "|-", ">+", "|+"}
 
 
 def parse_frontmatter(text: str) -> dict[str, str]:
-    if not text.startswith("---\n"):
+    """Read the flat `key: value` pairs between the opening and closing `---`.
+
+    Raises ValueError with a one-line reason when the block is missing or
+    unterminated, so the caller can report it next to the other checks instead
+    of aborting with a traceback.
+    """
+    lines = text.splitlines()
+    if not lines or not DELIMITER_RE.match(lines[0]):
         raise ValueError("SKILL.md must start with YAML frontmatter")
-    end = text.find("\n---", 4)
-    if end == -1:
-        raise ValueError("SKILL.md frontmatter closing delimiter missing")
-    front = text[4:end].strip().splitlines()
+    for index in range(1, len(lines)):
+        if DELIMITER_RE.match(lines[index]):
+            return _flat_pairs(lines[1:index])
+    raise ValueError("SKILL.md frontmatter closing delimiter missing")
+
+
+def _flat_pairs(lines: list[str]) -> dict[str, str]:
+    """Top-level `key: value` lines; nested blocks stay unparsed."""
     data: dict[str, str] = {}
-    for line in front:
-        if not line.strip() or line.startswith(" "):
+    for line in lines:
+        if not line.strip() or line.startswith((" ", "\t")):
             continue
         if ":" in line:
             key, value = line.split(":", 1)
@@ -31,7 +44,11 @@ def main() -> None:
     skill = root / "SKILL.md"
     if not skill.exists():
         raise SystemExit(f"Missing {skill}")
-    data = parse_frontmatter(skill.read_text(encoding="utf-8"))
+    try:
+        data = parse_frontmatter(skill.read_text(encoding="utf-8"))
+    except ValueError as error:
+        print(f"ERROR: {error}")
+        raise SystemExit(1)
     name = data.get("name", "")
     description = data.get("description", "")
     errors = []
@@ -45,6 +62,8 @@ def main() -> None:
         errors.append(f"parent directory name '{root.name}' must match name '{name}'")
     if not description:
         errors.append("description is required")
+    if description in BLOCK_SCALAR:
+        errors.append("description must be inline, not a YAML block scalar, so its length can be checked")
     if len(description) > 1024:
         errors.append(f"description exceeds 1024 characters: {len(description)}")
 
